@@ -1,7 +1,12 @@
 import api from "../lib/api";
-import { User, UpdateUserDto } from "../types/auth.types";
+import { User, UpdateUserDto, CreateUserDto } from "../types/auth.types";
 
 export const userService = {
+  async createUser(data: CreateUserDto): Promise<{ message: string; user: User }> {
+    const response = await api.post<{ message: string; user: User }>("/users", data);
+    return response.data;
+  },
+
   async getAllUsers(): Promise<User[]> {
     const response = await api.get<User[]>("/users");
     return response.data;

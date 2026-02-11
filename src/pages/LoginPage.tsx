@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LogIn,
-  Lock,
   Eye,
   EyeOff,
   ShieldCheck,
   Mail,
   Server,
+  HelpCircle, // Menambahkan icon bantuan
 } from "lucide-react";
-import toast from "react-hot-toast";
 import { useAuth } from "../contexts/AuthContext";
+import { useToastContext } from "../contexts/ToastContext";
 import { Role } from "../types/auth.types";
 
 export const LoginPage: React.FC = () => {
@@ -20,10 +20,12 @@ export const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { login, logout } = useAuth();
+  const toast = useToastContext();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!nik || !password) {
       toast.error("NIK and password are required");
       return;
@@ -33,15 +35,18 @@ export const LoginPage: React.FC = () => {
     try {
       await login(nik, password);
       const userStr = localStorage.getItem("user");
+
       if (userStr) {
         const user = JSON.parse(userStr);
         const authorizedRoles = [Role.ADMIN, Role.MANAGER, Role.ENGINEER];
+
         if (!authorizedRoles.includes(user.role)) {
           await logout();
           toast.error("Access denied. Authorized personnel only.");
           return;
         }
       }
+
       toast.success("Authentication Successful");
       navigate("/dashboard");
     } catch (err: any) {
@@ -53,7 +58,7 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white">
-      {/* ============ LEFT PANEL (70%) — Branding ============ */}
+      {/* ============ LEFT PANEL (70%) – Branding ============ */}
       <div
         className="hidden lg:flex items-center justify-center relative overflow-hidden"
         style={{
@@ -78,11 +83,6 @@ export const LoginPage: React.FC = () => {
             </span>
           </div>
 
-          <h1 className="text-white text-6xl font-extrabold mb-6 tracking-tighter">
-            OPPO <span className="text-green-500 text-6xl font-light">ME</span>
-          </h1>
-          <div className="h-1 w-24 bg-green-500 mb-10"></div>
-
           <p className="text-2xl leading-relaxed font-light text-white/60 max-w-xl">
             Single Sign-On (SSO) for <br />
             <span className="font-semibold text-white uppercase tracking-wider text-xl">
@@ -92,17 +92,26 @@ export const LoginPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ============ RIGHT PANEL (30%) — Auth Server Form ============ */}
+      {/* ============ RIGHT PANEL (30%) – Auth Server Form ============ */}
       <div className="w-full lg:w-[35%] xl:w-[30%] flex flex-col bg-white">
         <div className="flex-1 px-8 lg:px-14 pt-20 pb-10">
           <div className="w-full max-w-md mx-auto">
-            {/* Logo OPPO (Link Anda) */}
+            {/* Logo OPPO */}
             <div className="mb-12">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIr3AnH75vzRfIYpL8Uh9i4V6NhUhkKuYRchvsqVaPJA&s=10"
-                alt="OPPO Logo"
-                className="h-10 object-contain mb-8"
-              />
+              {/* Logo Row */}
+              <div className="flex items-center gap-4 mb-8">
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIr3AnH75vzRfIYpL8Uh9i4V6NhUhkKuYRchvsqVaPJA&s=10"
+                  alt="OPPO Logo"
+                  className="h-10 object-contain"
+                />
+                <img
+                  src="/logo BMT.png"
+                  alt="BMT Logo"
+                  className="h-10 object-contain"
+                />
+              </div>
+
               <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
                 Sign In
               </h2>
@@ -110,6 +119,7 @@ export const LoginPage: React.FC = () => {
                 Use your employee identity to continue.
               </p>
             </div>
+
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -167,33 +177,48 @@ export const LoginPage: React.FC = () => {
             </form>
 
             {/* Info Admin & Security */}
-            <div className="mt-12 space-y-4">
-              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-start gap-4 shadow-sm">
-                <ShieldCheck className="w-6 h-6 text-green-600 flex-shrink-0" />
-                <p className="text-[12px] text-slate-500 leading-relaxed font-medium">
-                  This system is part of the{" "}
-                  <span className="text-slate-900 font-bold">
-                    OPPO Secure Gateway
-                  </span>
-                  . All login attempts are logged and audited for security
-                  purposes.
-                </p>
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* Need Help */}
+              <div className="p-5 bg-amber-50/60 rounded-2xl border border-amber-100 flex items-start gap-4">
+                <HelpCircle className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">
+                    Need Access Assistance?
+                  </p>
+                  <p className="text-[12px] text-amber-800 leading-relaxed font-medium">
+                    Contact your <span className="font-bold">System Administrator</span> or
+                    <span className="font-bold"> Engineering Team</span> for password reset or access issues.
+                  </p>
+                </div>
               </div>
 
-              <div className="p-5 bg-green-50/30 rounded-2xl border border-green-100 flex items-center gap-4">
-                <div className="bg-green-100 p-2.5 rounded-lg">
+              {/* Security Notice */}
+              {/* <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-start gap-4">
+                <ShieldCheck className="w-6 h-6 text-green-600 flex-shrink-0" />
+                <p className="text-[12px] text-slate-500 leading-relaxed font-medium">
+                  Protected by <span className="font-bold text-slate-900">OPPO Secure Gateway</span>.
+                  All authentication activities are monitored and audited.
+                </p>
+              </div> */}
+
+              {/* Support - full width */}
+              {/* <div className="md:col-span-2 p-5 bg-green-50/40 rounded-2xl border border-green-100 flex items-center gap-4">
+                <div className="bg-green-100 p-3 rounded-xl">
                   <Mail className="w-5 h-5 text-green-700" />
                 </div>
                 <div>
                   <p className="text-xs font-bold text-green-900 uppercase">
-                    Support Center
+                    IT Support
                   </p>
-                  <p className="text-sm text-green-800 font-medium">
+                  <p className="text-sm text-green-800 font-semibold">
                     admin.me@oppo.com
                   </p>
                 </div>
-              </div>
+              </div> */}
+
             </div>
+
           </div>
         </div>
 
@@ -203,7 +228,7 @@ export const LoginPage: React.FC = () => {
             className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"
             title="System Online"
           ></span>
-          <p className="text-[11px] font-bold tracking-widest text-slate-300 uppercase">
+          <p className="text-[11px] font-bold tracking-widest text-black-300 uppercase">
             © 2026 OPPO ME · Authentication Service
           </p>
         </div>

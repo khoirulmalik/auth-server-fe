@@ -1,50 +1,40 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ToastProvider } from "./contexts/ToastContext";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
-import { UsersManagementPage } from "./pages/UsersManagementPage"; // Import halaman baru
-import { Role } from "./types/auth.types";
+import { UsersManagementPage } from "./pages/UsersManagementPage";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
+        <ToastProvider>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Dashboard - Akses untuk ADMIN, MANAGER, ENGINEER */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute
-                allowedRoles={[Role.ADMIN, Role.MANAGER, Role.ENGINEER]}
-              >
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="users" element={<UsersManagementPage />} />
+            </Route>
 
-          {/* User Management - KHUSUS ADMIN & MANAGER (Sesuai UsersController backend) */}
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute
-                allowedRoles={[Role.ADMIN, Role.MANAGER, Role.ENGINEER]}
-              >
-                <UsersManagementPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Redirect root to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-          {/* 404 Route */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+            {/* Catch all */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   );

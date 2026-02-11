@@ -2,7 +2,7 @@ export enum Role {
   ADMIN = "ADMIN",
   MANAGER = "MANAGER",
   ENGINEER = "ENGINEER",
-  ASSISTANT_ENGINEER = "ASSISTANT_ENGINEER",
+  SUPERVISOR = "SUPERVISOR",
   TECHNICIAN = "TECHNICIAN",
 }
 
@@ -30,7 +30,7 @@ export interface LoginDto {
   password: string;
 }
 
-export interface RegisterDto {
+export interface CreateUserDto {
   nik: string;
   email?: string;
   password: string;

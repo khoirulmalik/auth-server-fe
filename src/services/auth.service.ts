@@ -1,14 +1,9 @@
 import api from "../lib/api";
-import { LoginDto, RegisterDto, AuthResponse, User } from "../types/auth.types";
+import { LoginDto, AuthResponse, User } from "../types/auth.types";
 
 export const authService = {
   async login(credentials: LoginDto): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>("/auth/login", credentials);
-    return response.data;
-  },
-
-  async register(data: RegisterDto): Promise<{ message: string; user: User }> {
-    const response = await api.post("/auth/register", data);
     return response.data;
   },
 

@@ -6,6 +6,7 @@ import {
   RegisterDto,
   UpdateUserDto,
 } from "../types/auth.types";
+import { X } from "lucide-react";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -56,27 +57,59 @@ export const UserModal: React.FC<UserModalProps> = ({
 
   const rolesRequiringSpec = [
     Role.ENGINEER,
-    Role.ASSISTANT_ENGINEER,
+    Role.SUPERVISOR,
     Role.TECHNICIAN,
   ];
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-          <h3 className="text-lg font-bold text-gray-800">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{
+        background: "rgba(15, 23, 42, 0.6)",
+        backdropFilter: "blur(4px)",
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="card w-full max-w-md overflow-hidden animate-fade-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          className="px-6 py-4 flex justify-between items-center"
+          style={{
+            background: "var(--c-surface-alt)",
+            borderBottom: "1px solid var(--c-border)",
+          }}
+        >
+          <h3
+            className="text-lg font-bold"
+            style={{ color: "var(--c-text)" }}
+          >
             {mode === "add" ? "Add New User" : "Edit User"}
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: "var(--c-text-muted)" }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background =
+                "var(--c-surface-hover)";
+              (e.currentTarget as HTMLElement).style.color = "var(--c-text)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "transparent";
+              (e.currentTarget as HTMLElement).style.color =
+                "var(--c-text-muted)";
+            }}
           >
-            ✕
+            <X className="w-5 h-5" />
           </button>
         </div>
 
+        {/* Form */}
         <form
           className="p-6 space-y-4"
           onSubmit={(e) => {
@@ -85,29 +118,35 @@ export const UserModal: React.FC<UserModalProps> = ({
           }}
         >
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
+            <label
+              className="block text-xs font-semibold uppercase mb-2"
+              style={{ color: "var(--c-text-muted)" }}
+            >
               NIK
             </label>
             <input
               type="text"
               required
-              className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+              className="input"
               value={formData.nik}
               onChange={(e) =>
                 setFormData({ ...formData, nik: e.target.value })
               }
-              disabled={mode === "edit"} // NIK biasanya tidak boleh diubah
+              disabled={mode === "edit"}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
+            <label
+              className="block text-xs font-semibold uppercase mb-2"
+              style={{ color: "var(--c-text-muted)" }}
+            >
               Full Name
             </label>
             <input
               type="text"
               required
-              className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+              className="input"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
@@ -116,11 +155,31 @@ export const UserModal: React.FC<UserModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
+            <label
+              className="block text-xs font-semibold uppercase mb-2"
+              style={{ color: "var(--c-text-muted)" }}
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              className="input"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <label
+              className="block text-xs font-semibold uppercase mb-2"
+              style={{ color: "var(--c-text-muted)" }}
+            >
               Role
             </label>
             <select
-              className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="input"
               value={formData.role}
               onChange={(e) =>
                 setFormData({ ...formData, role: e.target.value as Role })
@@ -136,12 +195,15 @@ export const UserModal: React.FC<UserModalProps> = ({
 
           {rolesRequiringSpec.includes(formData.role as Role) && (
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
+              <label
+                className="block text-xs font-semibold uppercase mb-2"
+                style={{ color: "var(--c-text-muted)" }}
+              >
                 Specialization
               </label>
               <select
                 required
-                className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="input"
                 value={formData.specialization || ""}
                 onChange={(e) =>
                   setFormData({
@@ -164,13 +226,16 @@ export const UserModal: React.FC<UserModalProps> = ({
 
           {mode === "add" && (
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
+              <label
+                className="block text-xs font-semibold uppercase mb-2"
+                style={{ color: "var(--c-text-muted)" }}
+              >
                 Initial Password
               </label>
               <input
                 type="password"
                 required
-                className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                className="input"
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
@@ -183,15 +248,12 @@ export const UserModal: React.FC<UserModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50 font-medium"
+              className="btn btn-secondary btn-md flex-1"
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-md"
-            >
-              {mode === "add" ? "Create User" : "Update Changes"}
+            <button type="submit" className="btn btn-primary btn-md flex-1">
+              {mode === "add" ? "Create User" : "Update"}
             </button>
           </div>
         </form>
