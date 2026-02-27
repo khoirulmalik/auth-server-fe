@@ -1,56 +1,32 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  LogIn,
-  Eye,
-  EyeOff,
-  ShieldCheck,
-  Mail,
-  Server,
-  HelpCircle, // Menambahkan icon bantuan
-} from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-import { useToastContext } from "../contexts/ToastContext";
-import { Role } from "../types/auth.types";
+import { useForm } from "react-hook-form";
+import { LogIn, Lock, Server, HelpCircle } from "lucide-react";
+import toast from "react-hot-toast";
+import { authService } from "../services/auth.service";
+import { useAuthStore } from "../stores/authStore";
+import type { LoginCredentials } from "../types/auth.types";
 
-export const LoginPage: React.FC = () => {
-  const [nik, setNik] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
-
-  const { login, logout } = useAuth();
-  const toast = useToastContext();
   const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginCredentials>();
 
-    if (!nik || !password) {
-      toast.error("NIK and password are required");
-      return;
-    }
-
+  const onSubmit = async (data: LoginCredentials) => {
     setIsLoading(true);
     try {
-      await login(nik, password);
-      const userStr = localStorage.getItem("user");
-
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        const authorizedRoles = [Role.ADMIN, Role.MANAGER, Role.ENGINEER];
-
-        if (!authorizedRoles.includes(user.role)) {
-          await logout();
-          toast.error("Access denied. Authorized personnel only.");
-          return;
-        }
-      }
-
-      toast.success("Authentication Successful");
-      navigate("/dashboard");
-    } catch (err: any) {
-      toast.error(err.message || "Invalid credentials.");
+      const response = await authService.login(data);
+      setAuth(response.user, response.access_token, response.refresh_token);
+      toast.success("Login successful!");
+      navigate("/");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -120,57 +96,89 @@ export const LoginPage: React.FC = () => {
               </p>
             </div>
 
-
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {/* NIK Field */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                  Employee ID
+                <label
+                  htmlFor="nik"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Employee ID (NIK)
                 </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 text-lg focus:bg-white focus:ring-2 focus:ring-[#00935f] focus:border-transparent transition-all outline-none placeholder:text-slate-300"
-                  placeholder="NIKXXXXXX"
-                  value={nik}
-                  onChange={(e) => setNik(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                  Secure Password
-                </label>
-                <div className="relative group">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-400 text-sm font-bold">#</span>
+                  </div>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 text-lg focus:bg-white focus:ring-2 focus:ring-[#00935f] focus:border-transparent transition-all outline-none placeholder:text-slate-300"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    id="nik"
+                    type="text"
+                    autoComplete="username"
+                    className="w-full pl-9 pr-3 py-3 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                    placeholder="Enter your NIK"
+                    {...register("nik", {
+                      required: "NIK is required",
+                    })}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-5 flex items-center text-slate-400 hover:text-green-600 transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
-                  </button>
                 </div>
+                {errors.nik && (
+                  <p className="mt-1.5 text-xs text-red-600">
+                    {errors.nik.message}
+                  </p>
+                )}
               </div>
 
+              {/* Password Field */}
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    id="password"
+                    type="password"
+                    autoComplete="current-password"
+                    className="w-full pl-9 pr-3 py-3 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                    placeholder="••••••••"
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters",
+                      },
+                    })}
+                  />
+                </div>
+                {errors.password && (
+                  <p className="mt-1.5 text-xs text-red-600">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center space-x-3 py-4.5 rounded-xl text-lg font-bold text-white transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 h-[64px]"
-                style={{ background: "#00935f" }}
+                className="w-full flex items-center justify-center space-x-2 py-3 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60 mt-6"
+                style={{
+                  background: "linear-gradient(135deg, #16a34a, #15803d)",
+                }}
               >
                 {isLoading ? (
-                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Signing in...</span>
+                  </>
                 ) : (
                   <>
-                    <span>Authenticate</span>
-                    <LogIn className="w-5 h-5" />
+                    <LogIn className="w-4 h-4" />
+                    <span>Sign In</span>
                   </>
                 )}
               </button>
@@ -178,7 +186,6 @@ export const LoginPage: React.FC = () => {
 
             {/* Info Admin & Security */}
             <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4">
-
               {/* Need Help */}
               <div className="p-5 bg-amber-50/60 rounded-2xl border border-amber-100 flex items-start gap-4">
                 <HelpCircle className="w-6 h-6 text-amber-600 flex-shrink-0" />
@@ -192,33 +199,7 @@ export const LoginPage: React.FC = () => {
                   </p>
                 </div>
               </div>
-
-              {/* Security Notice */}
-              {/* <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-start gap-4">
-                <ShieldCheck className="w-6 h-6 text-green-600 flex-shrink-0" />
-                <p className="text-[12px] text-slate-500 leading-relaxed font-medium">
-                  Protected by <span className="font-bold text-slate-900">OPPO Secure Gateway</span>.
-                  All authentication activities are monitored and audited.
-                </p>
-              </div> */}
-
-              {/* Support - full width */}
-              {/* <div className="md:col-span-2 p-5 bg-green-50/40 rounded-2xl border border-green-100 flex items-center gap-4">
-                <div className="bg-green-100 p-3 rounded-xl">
-                  <Mail className="w-5 h-5 text-green-700" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-green-900 uppercase">
-                    IT Support
-                  </p>
-                  <p className="text-sm text-green-800 font-semibold">
-                    admin.me@oppo.com
-                  </p>
-                </div>
-              </div> */}
-
             </div>
-
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuthStore } from "../stores/authStore";
 import { Role, EngineerSpecialization } from "../types/auth.types";
 import {
   FileText,
@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 export const DashboardPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user } = useAuthStore();
 
   const getRoleBadgeClass = (role: Role) => {
     switch (role) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { userService } from "../services/users.service";
 import { User, Role } from "../types/auth.types";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuthStore } from "../stores/authStore";
 import { UserModal } from "../components/UserModal";
 import { UserPlus, Search, Edit2, Power, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -18,7 +18,7 @@ export const UsersManagementPage: React.FC = () => {
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const { user: currentUser } = useAuth();
+  const { user: currentUser } = useAuthStore();
 
   // --- Data Fetching ---
   const fetchUsers = async () => {

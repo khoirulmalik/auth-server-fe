@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://10.121.26.50:3000/api/v1";
+const API_BASE_URL = "http://10.121.35.42:3000/api/v1";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -29,31 +29,34 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If 401 and not already retried
+    // If 401 and haven't retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
         const refreshToken = localStorage.getItem("refresh_token");
+
         if (!refreshToken) {
-          throw new Error("No refresh token");
+          // No refresh token, redirect to login
+          localStorage.clear();
+          window.location.href = "/login";
+          return Promise.reject(error);
         }
 
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+        // Try to refresh token via Auth Server
+        const { data } = await api.post("/auth/refresh", {
           refresh_token: refreshToken,
         });
 
-        const { access_token } = response.data;
-        localStorage.setItem("access_token", access_token);
+        // Save new access token
+        localStorage.setItem("access_token", data.access_token);
 
-        // Retry original request
-        originalRequest.headers.Authorization = `Bearer ${access_token}`;
+        // Retry original request with new token
+        originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh failed - logout user
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user");
+        // Refresh failed, clear auth and redirect
+        localStorage.clear();
         window.location.href = "/login";
         return Promise.reject(refreshError);
       }

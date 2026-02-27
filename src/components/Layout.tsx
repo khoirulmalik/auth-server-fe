@@ -9,7 +9,7 @@ import {
     Moon,
 } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuthStore } from "../stores/authStore";
 import { useTheme } from "../hooks/useTheme";
 // import { NotificationBell } from "./NotificationBell";
 
@@ -22,11 +22,11 @@ export default function Layout() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, logout } = useAuth();
+    const { user, clearAuth } = useAuthStore();
     const { dark, toggleTheme } = useTheme();
 
     const handleLogout = async () => {
-        await logout();
+        await clearAuth();
         navigate("/login");
     };
 

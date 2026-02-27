@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuthStore } from "../stores/authStore";
 import { Role } from "../types/auth.types";
 
 interface ProtectedRouteProps {
@@ -12,7 +12,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   allowedRoles = [Role.ADMIN, Role.MANAGER, Role.ENGINEER],
 }) => {
-  const { isAuthenticated, isLoading, hasRole } = useAuth();
+  const isAuthenticated = useAuthStore((state) => !!(state.accessToken && state.user));
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const hasRole = useAuthStore((state) => state.hasRole);
 
   if (isLoading) {
     return (

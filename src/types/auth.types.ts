@@ -25,7 +25,8 @@ export interface User {
   updatedAt: string;
 }
 
-export interface LoginDto {
+
+export interface LoginCredentials {
   nik: string;
   password: string;
 }

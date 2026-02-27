@@ -3,8 +3,8 @@ import {
   Role,
   EngineerSpecialization,
   User,
-  RegisterDto,
   UpdateUserDto,
+  CreateUserDto,
 } from "../types/auth.types";
 import { X } from "lucide-react";
 
@@ -24,7 +24,7 @@ export const UserModal: React.FC<UserModalProps> = ({
   mode,
 }) => {
   const [formData, setFormData] = useState<
-    Partial<RegisterDto | UpdateUserDto>
+    Partial<CreateUserDto | UpdateUserDto>
   >({
     nik: "",
     name: "",
