@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {
-  Role,
-  EngineerSpecialization,
+  Role, EngineerSpecialization
+} from "@shared/types/shared.types";
+import {
   User,
   UpdateUserDto,
   CreateUserDto,
-} from "../types/auth.types";
+} from "@features/users/types/users.types";
+import { requiresSpecialization } from "../domain/role-rules";
+
 import { X } from "lucide-react";
 
 interface UserModalProps {
@@ -55,11 +58,7 @@ export const UserModal: React.FC<UserModalProps> = ({
     }
   }, [initialData, mode, isOpen]);
 
-  const rolesRequiringSpec = [
-    Role.ENGINEER,
-    Role.SUPERVISOR,
-    Role.TECHNICIAN,
-  ];
+
 
   if (!isOpen) return null;
 
@@ -193,7 +192,7 @@ export const UserModal: React.FC<UserModalProps> = ({
             </select>
           </div>
 
-          {rolesRequiringSpec.includes(formData.role as Role) && (
+          {requiresSpecialization(formData.role as Role) && (
             <div>
               <label
                 className="block text-xs font-semibold uppercase mb-2"
@@ -223,6 +222,7 @@ export const UserModal: React.FC<UserModalProps> = ({
               </select>
             </div>
           )}
+
 
           {mode === "add" && (
             <div>

@@ -1,0 +1,38 @@
+import api from "@shared/lib/api";
+import { User, UpdateUserDto, CreateUserDto } from "@features/users/types/users.types";
+
+export const userService = {
+  async createUser(data: CreateUserDto): Promise<{ message: string; user: User }> {
+    const response = await api.post<{ message: string; user: User }>("/users", data);
+    return response.data;
+  },
+
+  async getAllUsers(): Promise<User[]> {
+    const response = await api.get<User[]>("/users");
+    return response.data;
+  },
+
+  async getUserById(id: string): Promise<User> {
+    const response = await api.get<User>(`/users/${id}`);
+    return response.data;
+  },
+
+  async updateUser(id: string, data: UpdateUserDto): Promise<User> {
+    const response = await api.patch<User>(`/users/${id}`, data);
+    return response.data;
+  },
+
+  async deleteUser(id: string): Promise<void> {
+    await api.delete(`/users/${id}`);
+  },
+
+  async deactivateUser(id: string): Promise<User> {
+    const response = await api.patch(`/users/${id}/deactivate`);
+    return response.data.user;
+  },
+
+  async activateUser(id: string): Promise<User> {
+    const response = await api.patch(`/users/${id}/activate`);
+    return response.data.user;
+  },
+};

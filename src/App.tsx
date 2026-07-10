@@ -1,20 +1,21 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ToastProvider } from "./contexts/ToastContext";
-import LoginPage from "./pages/LoginPage";
-import { DashboardPage } from "./pages/DashboardPage";
-import { UsersManagementPage } from "./pages/UsersManagementPage";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import Layout from "./components/Layout";
+import { ToastProvider } from "@shared/contexts/ToastContext";
+import LoginPage from "@features/auth/pages/LoginPage";
+import { DashboardPage } from "@features/dashboard/pages/DashboardPage";
+import { UsersManagementPage } from "@features/users/pages/UsersManagementPage";
+import { ProtectedRoute } from "./shared/components/ProtectedRoute";
+import Layout from "./shared/components/layout/Layout";
+import { Role } from "@shared/types/shared.types";
 
 function App() {
   return (
     <BrowserRouter>
       <ToastProvider>
         <Routes>
-          {/* Public Routes */}
+          {/* Public */}
           <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected Routes */}
+          {/* Protected — any authenticated user */}
           <Route
             path="/"
             element={
@@ -25,7 +26,18 @@ function App() {
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="users" element={<UsersManagementPage />} />
+
+            {/* Users management — restricted */}
+            <Route
+              path="users"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[Role.ADMIN, Role.MANAGER, Role.ENGINEER]}
+                >
+                  <UsersManagementPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           {/* Catch all */}
