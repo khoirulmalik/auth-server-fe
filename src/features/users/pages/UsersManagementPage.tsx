@@ -82,7 +82,8 @@ export const UsersManagementPage: React.FC = () => {
 
   const handleToggleStatus = async (user: User) => {
     const action = user.isActive ? "deactivate" : "activate";
-    if (!window.confirm(`Are you sure you want to ${action} ${user.name}?`)) return;
+    if (!window.confirm(`Are you sure you want to ${action} ${user.name}?`))
+      return;
 
     try {
       if (user.isActive) {
@@ -99,7 +100,10 @@ export const UsersManagementPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`PERMANENTLY delete user ${name}? This cannot be undone.`)) return;
+    if (
+      !window.confirm(`PERMANENTLY delete user ${name}? This cannot be undone.`)
+    )
+      return;
     try {
       await userService.deleteUser(id);
       toast.success(`${name} has been deleted`);
@@ -112,9 +116,12 @@ export const UsersManagementPage: React.FC = () => {
   // ─── Helpers ───────────────────────────────────────────────────────────
   const getRoleBadgeClass = (role: Role) => {
     switch (role) {
-      case Role.ADMIN: return "badge-danger";
-      case Role.MANAGER: return "badge-primary";
-      default: return "badge-success";
+      case Role.ADMIN:
+        return "badge-danger";
+      case Role.MANAGER:
+        return "badge-primary";
+      default:
+        return "badge-success";
     }
   };
 
@@ -267,20 +274,23 @@ export const UsersManagementPage: React.FC = () => {
                           style={{ color: "var(--c-text-secondary)" }}
                         >
                           {u.specialization}
+                          {u.category && ` · ${u.category}`}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`w-2 h-2 rounded-full ${u.isActive
-                            ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"
-                            : "bg-red-500"
-                            }`}
+                          className={`w-2 h-2 rounded-full ${
+                            u.isActive
+                              ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"
+                              : "bg-red-500"
+                          }`}
                         />
                         <span
-                          className={`text-xs font-medium ${u.isActive ? "text-green-600" : "text-red-600"
-                            }`}
+                          className={`text-xs font-medium ${
+                            u.isActive ? "text-green-600" : "text-red-600"
+                          }`}
                         >
                           {u.isActive ? "Active" : "Inactive"}
                         </span>
@@ -314,15 +324,20 @@ export const UsersManagementPage: React.FC = () => {
                               : "var(--c-status-done-text)",
                           }}
                           onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLElement).style.background = u.isActive
-                              ? "var(--c-status-hold-bg)"
-                              : "var(--c-status-done-bg)";
+                            (e.currentTarget as HTMLElement).style.background =
+                              u.isActive
+                                ? "var(--c-status-hold-bg)"
+                                : "var(--c-status-done-bg)";
                           }}
                           onMouseLeave={(e) => {
                             (e.currentTarget as HTMLElement).style.background =
                               "transparent";
                           }}
-                          title={u.isActive ? "Deactivate Account" : "Activate Account"}
+                          title={
+                            u.isActive
+                              ? "Deactivate Account"
+                              : "Activate Account"
+                          }
                         >
                           <Power className="w-4 h-4" />
                         </button>
@@ -333,12 +348,14 @@ export const UsersManagementPage: React.FC = () => {
                             className="p-1.5 rounded-md transition-colors"
                             style={{ color: "var(--c-error)" }}
                             onMouseEnter={(e) => {
-                              (e.currentTarget as HTMLElement).style.background =
-                                "var(--c-status-cancel-bg)";
+                              (
+                                e.currentTarget as HTMLElement
+                              ).style.background = "var(--c-status-cancel-bg)";
                             }}
                             onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLElement).style.background =
-                                "transparent";
+                              (
+                                e.currentTarget as HTMLElement
+                              ).style.background = "transparent";
                             }}
                             title="Delete Permanently"
                           >

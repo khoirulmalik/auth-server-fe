@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import {
-  Role, EngineerSpecialization
+  Role,
+  EngineerSpecialization,
+  EngineerCategory,
 } from "@shared/types/shared.types";
 import {
   User,
   UpdateUserDto,
   CreateUserDto,
 } from "@features/users/types/users.types";
-import { requiresSpecialization } from "../domain/role-rules";
+import { requiresSpecialization, requiresCategory } from "../domain/role-rules";
 
 import { X } from "lucide-react";
 
@@ -19,6 +21,8 @@ interface UserModalProps {
   mode: "add" | "edit";
 }
 
+type UserFormData = Partial<CreateUserDto | UpdateUserDto>;
+
 export const UserModal: React.FC<UserModalProps> = ({
   isOpen,
   onClose,
@@ -26,14 +30,13 @@ export const UserModal: React.FC<UserModalProps> = ({
   initialData,
   mode,
 }) => {
-  const [formData, setFormData] = useState<
-    Partial<CreateUserDto | UpdateUserDto>
-  >({
+  const [formData, setFormData] = useState<UserFormData>({
     nik: "",
     name: "",
     email: "",
     role: Role.ENGINEER,
     specialization: null,
+    category: null,
     password: "",
   });
 
@@ -45,6 +48,7 @@ export const UserModal: React.FC<UserModalProps> = ({
         email: initialData.email,
         role: initialData.role,
         specialization: initialData.specialization || null,
+        category: initialData.category || null,
       });
     } else {
       setFormData({
@@ -53,12 +57,11 @@ export const UserModal: React.FC<UserModalProps> = ({
         email: "",
         role: Role.ENGINEER,
         specialization: null,
+        category: null,
         password: "",
       });
     }
   }, [initialData, mode, isOpen]);
-
-
 
   if (!isOpen) return null;
 
@@ -83,10 +86,7 @@ export const UserModal: React.FC<UserModalProps> = ({
             borderBottom: "1px solid var(--c-border)",
           }}
         >
-          <h3
-            className="text-lg font-bold"
-            style={{ color: "var(--c-text)" }}
-          >
+          <h3 className="text-lg font-bold" style={{ color: "var(--c-text)" }}>
             {mode === "add" ? "Add New User" : "Edit User"}
           </h3>
           <button
@@ -223,6 +223,36 @@ export const UserModal: React.FC<UserModalProps> = ({
             </div>
           )}
 
+          {requiresCategory(formData.role as Role) && (
+            <div>
+              <label
+                className="block text-xs font-semibold uppercase mb-2"
+                style={{ color: "var(--c-text-muted)" }}
+              >
+                Category
+              </label>
+              <select
+                required
+                className="input"
+                value={formData.category || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    category: e.target.value as EngineerCategory,
+                  })
+                }
+              >
+                <option value="" disabled>
+                  Select Category
+                </option>
+                {Object.values(EngineerCategory).map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {mode === "add" && (
             <div>

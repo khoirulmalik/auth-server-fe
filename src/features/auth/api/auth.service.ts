@@ -1,6 +1,7 @@
 import api from "../../../shared/lib/api";
 import { useAuthStore } from "../store/authStore";
-import { LoginCredentials, AuthResponse, User } from "../../../types/auth.types";
+import { LoginCredentials, AuthResponse } from "../types/auth.types";
+import { User } from "../../users/types/users.types";
 
 export const authService = {
   /**
